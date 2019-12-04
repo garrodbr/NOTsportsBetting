@@ -89,7 +89,7 @@ for game in gamesList:
 # 2 = Row Number
 
 scoreFormula = "=IF(ISBLANK(${}{}), , SUM(IF(OR(AND(${}{}>${}{}, {}{}>{}{}), AND(${}{}>${}{}, {}{}>{}{})), 50, 0), " \
-               "50-({}{}-${}{})-({}{}-${}{})))"  # order is Q, Q, R, E, F, R, Q, F, E, E, Q, F, R
+               "50-ABS({}{}-${}{})-ABS({}{}-${}{})))"  # order is Q, Q, R, E, F, R, Q, F, E, E, Q, F, R
 headerLength = 0 # This should get overwritten
 for rowi, rows in enumerate(ws.iter_rows()):
 
@@ -109,17 +109,12 @@ for rowi, rows in enumerate(ws.iter_rows()):
             cellE = chr(64 + celli-1)
             cellF = chr(64 + celli)
 
-            scoreFormula = "=IF(ISBLANK({}{}), , " \
-                           "SUM(IF(OR(AND({}{}>{}{}, " \
-                           "{}{}>{}{}), " \
-                           "AND({}{}>{}{}, " \
-                           "{}{}>{}{})), 50, 0), " \
-                           "50-ABS({}{}-{}{})-ABS({}{}-{}{})))".format(
+            cellFormula = scoreFormula.format(
                 cellQ, rowi, cellQ, rowi, cellR, rowi, cellE, rowi, cellF, rowi, cellR, rowi, cellQ, rowi, cellF, rowi,
                 cellE, rowi, cellE, rowi, cellQ, rowi, cellF, rowi, cellR, rowi)
             # order is Q, Q, R, E, F, R, Q, F, E, E, Q, F, R
 
-            changeCell.value = scoreFormula
+            changeCell.value = cellFormula
 
 wb.save(filename=destFile)
 
