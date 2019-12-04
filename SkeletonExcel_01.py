@@ -53,6 +53,7 @@ for pod in container:
 # -------------------------------------------------------------------------------------------------------------------
 
 from openpyxl import Workbook
+from openpyxl.styles import PatternFill
 
 players = ["Brad", "Burton", "Chris", "Martin"]
 playerEntry = []
@@ -99,7 +100,9 @@ for rowi, rows in enumerate(ws.iter_rows()):
     rowi += 1
 
     for celli, cell in enumerate(rows):
-        if celli in [6, 9, 12, 15]:
+
+        if celli in [6, 9, 12, 15]: # still could update to be auto based on number of entries
+            cell.fill = PatternFill(fgColor="deb137", fill_type = "solid") # Format color
             changeCell = cell
             cellQ = chr(64+headerLength-1)
             cellR = chr(64+headerLength)
