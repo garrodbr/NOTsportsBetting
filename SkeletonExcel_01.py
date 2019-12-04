@@ -62,9 +62,11 @@ for user in players:
 wb = Workbook()
 destFile = "sampleSkeleton.xlsx"
 
+# Change the Cover sheet name
 ws1 = wb.active
 ws1.title = "CoverPage"
 
+# Create a new sheet for the bowl games
 wb.create_sheet("BowlGames")
 wb.active = wb["BowlGames"]
 
@@ -77,4 +79,44 @@ ws.append(appendHeader)
 for game in gamesList:
     ws.append(game)
 
-wb.save(filename = destFile)
+# Fill in the formula
+# =IF(ISBLANK($Q2), , SUM(IF(OR(AND($Q2>$R2, E2>F2), AND($R2>$Q2, F2>E2)), 50, 0), E2-$Q2, F2-$R2)) sample for 4 users
+# Q = Home Team Actual
+# R = Away Team Actual
+# E = Home Team User
+# F = Away Team User
+# 2 = Row Number
+
+scoreFormula = "=IF(ISBLANK(${}{}), , SUM(IF(OR(AND(${}{}>${}{}, {}{}>{}{}), AND(${}{}>${}{}, {}{}>{}{})), 50, 0), " \
+               "50-({}{}-${}{})-({}{}-${}{})))"  # order is Q, Q, R, E, F, R, Q, F, E, E, Q, F, R
+headerLength = 0 # This should get overwritten
+for rowi, rows in enumerate(ws.iter_rows()):
+
+    if rowi == 0:
+        headerLength = len(rows)
+        continue # Skip the header
+
+    rowi += 1
+
+    for celli, cell in enumerate(rows):
+        if celli in [6, 9, 12, 15]:
+            changeCell = cell
+            cellQ = chr(64+headerLength-1)
+            cellR = chr(64+headerLength)
+            cellE = chr(64 + celli-1)
+            cellF = chr(64 + celli)
+
+            scoreFormula = "=IF(ISBLANK({}{}), , " \
+                           "SUM(IF(OR(AND({}{}>{}{}, " \
+                           "{}{}>{}{}), " \
+                           "AND({}{}>{}{}, " \
+                           "{}{}>{}{})), 50, 0), " \
+                           "50-ABS({}{}-{}{})-ABS({}{}-{}{})))".format(
+                cellQ, rowi, cellQ, rowi, cellR, rowi, cellE, rowi, cellF, rowi, cellR, rowi, cellQ, rowi, cellF, rowi,
+                cellE, rowi, cellE, rowi, cellQ, rowi, cellF, rowi, cellR, rowi)
+            # order is Q, Q, R, E, F, R, Q, F, E, E, Q, F, R
+
+            changeCell.value = scoreFormula
+
+wb.save(filename=destFile)
+
